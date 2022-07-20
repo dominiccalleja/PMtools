@@ -86,7 +86,7 @@ def plot_gant(df, figsize = (60,30), save_address = None, labelsize='20'):
 
 
 ## Pre processing
-# pd0 = pd.read_excel('/Users/DCLJ/Documents/PMTools/example/gant_chart_example.xlsx', sheet_name='Sheet1')
+# pd0 = pd.read_excel('/Users/DCLJ/DB/working_dir/GCP onboarding - Tracker.xlsx', sheet_name='dbTPRM')
 # labels = pd0['RR'].iloc[1:57].values
 
 # Labs = {}
@@ -110,14 +110,17 @@ def plot_gant(df, figsize = (60,30), save_address = None, labelsize='20'):
 
 if __name__=='__main__':
     
-    gant = pd.read_excel('example/gant_chart_example.xlsx') #, index_col=[0])
+    gant = pd.read_excel('example/gant_chart_example_v2.xlsx', index_col=[0])
     gant.loc[np.isnan(gant['Duration L']),'Duration L'] = 1 
-    # gant = gant.reset_index(drop=True)
+    gant = gant.reset_index(drop=True)
 
     # gant.to_excel(
     #     'example/GCP-onboarding-ActivitiesPlan.xlsx')
 
     start_date = date.today()
-    df, dependency = compute_dependency_date(gant, start_date)
+    # df, dependency = compute_dependency_date(gant, start_date)
+    # plot_gant(df, figsize=(
+    #     60, 30), save_address='example/GCP-gantchart-integrationplan-v1-reduced.png')
+
     plot_gant(df, figsize=(
-        20, 10), save_address=None)
+        60, 30), save_address='example/GCP-gantchart-integrationplan-v1-reduced.png')

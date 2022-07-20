@@ -1,29 +1,24 @@
-# Activity class 
-
+# Duration class 
 from datetime import date, timedelta
-import numpy as np 
-
-ACTIVITY_ATTRIBUTES = ['number', 'label', 'description',
-                       'prerequisites', 'dependants', 'child', 'parent']
+from activity import Activity
 
 TIME_ATTRIBUTES = ['start_date', 'end_date', 'duration']
 
 # VALID_ACTIVITY_ATTRIBUTES = #Join all attribute lists
 
 class Duration:
-    fill_missing = True
-
+    fill_missing=True
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
-        #Check temporal attributes all exist
+        #Check temporal attributes all exist 
         # if fill_missing:
         self.comp_missing()
 
     def is_valid(self):
         for v in VALID_ACTIVITY_ATTRIBUTES:
             if not self._check_(name)[0]:
-                return False
+                return False 
 
     def comp_missing(self):
         if not all([hasattr(self, k) for k in TIME_ATTRIBUTES]):
@@ -39,7 +34,7 @@ class Duration:
     def __add__(self, other):
         if isinstance(other, int):
             other = timedelta(days=other)
-
+        
         if isinstance(other, timedelta):
             # Assumes you want to add some number of days to the duration of the activity
             duration = other + self.duration
@@ -52,11 +47,11 @@ class Duration:
             return return_new(self.start_date, end_date, duration)
 
         elif other.__class__.__name__ == 'Duration' or other.__class__.__name__ == 'Activity':
-            # Assumes you are adding the second activity to the first
+            # Assumes you are adding the second activity to the first 
             duration = self.duration + other.duration
             end_date = self.end_date + other.duration
             return return_new(self.start_date, end_date, duration)
-
+        
         else:
             print('Sorry! I dont know how to deal with that object yet!')
             return None
@@ -76,11 +71,11 @@ class Duration:
             return return_new(self.start_date, end_date, duration)
 
         elif other.__class__.__name__ == 'Duration':
-            # Assumes you are adding the second activity to the first
+            # Assumes you are adding the second activity to the first 
             duration = self.duration - other.duration
             self.end_date = self.end_date - other.duration
             return return_new(self.start_date, end_date, duration)
-
+        
         else:
             print('Sorry! I dont know how to deal with that object yet')
             return None
@@ -103,37 +98,35 @@ class Duration:
             print('Sorry! I dont know how to deal with that object yet!')
             return None
 
-    def __lt__(self, other):
+    def __lt__(self,other):
         # <
         if other.__class__.__name__ == 'Duration' or other.__class__.__name__ == 'Activity':
             return self.end_date < other.start_date
         elif isinstance(other, date):
             return self.end_date < date
 
-    def __eq__(self, other):
+    def __eq__(self,other):
         """ we will use equal to mean some overlap """
-        # =
+        # =   
         if other.__class__.__name__ == 'Duration' or other.__class__.__name__ == 'Activity':
-            A = (other.end_date <=
-                 self.end_date and other.start_date >= self.start_date)
-            B = (other.end_date >=
-                 self.end_date and other.start_date <= self.start_date)
+            A = (other.end_date <= self.end_date and other.start_date >= self.start_date)
+            B = (other.end_date >= self.end_date and other.start_date <= self.start_date)
             C = (other.end_date <=
                  self.end_date and other.end_date >= self.start_date)
             D = (other.start_date <=
                  self.end_date and other.start_date >= self.start_date)
-            return any([A, B, C, D])
+            return any([A,B,C,D])
 
         elif isinstance(other, date):
             return self.end_date <= date and self.start_date >= date
 
-    def __gt__(self, other):
+    def __gt__(self,other):
         #>
         if other.__class__.__name__ == 'Duration' or other.__class__.__name__ == 'Activity':
             return self.end_date > other.start_date
         elif isinstance(other, date):
             return self.end_date > date
-
+    
     def __ne__(self, other):
         """ Assumes you are checking there is no overlap"""
         # !=
@@ -141,17 +134,17 @@ class Duration:
             return not self.__eq__(other)
         elif other.__class__.__name__ == 'Duration' or other.__class__.__name__ == 'Activity':
             return not self.__eq__(other)
-            #return self.start_date > other.end_date or self.end_date < other.end_date
+            #return self.start_date > other.end_date or self.end_date < other.end_date 
 
-    def __le__(self, other):
+    def __le__(self,other):
         """ Assumes you are checking if the end date comes after some date!"""
         # <=
         if other.__class__.__name__ == 'Duration' or other.__class__.__name__ == 'Activity':
             return self.end_date <= other.end_date
         elif isinstance(other, date):
-            return self.end_date <= date
+            return self.end_date <= date 
 
-    def __ge__(self, other):
+    def __ge__(self,other):
         """ Assumes you are checking if the start date comes after some date!"""
         # >=
         if other.__class__.__name__ == 'Duration' or other.__class__.__name__ == 'Activity':
@@ -159,7 +152,7 @@ class Duration:
         elif isinstance(other, date):
             return self.start_date >= date
 
-    def move(self, other):
+    def move(self,other):
         if isinstance(other, int):
             other = timedelta(days=other)
 
@@ -170,7 +163,7 @@ class Duration:
         else:
             print('Sorry! I dont know how to deal with that object yet!')
             return None
-
+        
     # def __getattr__(self, name):
     #     try:
     #         return getattr(self, name)
@@ -178,117 +171,20 @@ class Duration:
     #         raise AttributeError(
     #                 "Activity' object has no attribute '%s'" % name)
 
-    def _check_(self, name):
+    def _check_(self,name):
         if hasattr(self, name):
             return True, getattr(self, name)
         else:
             return False, None
 
-
-class Activity(Duration):
-
-    def __init__(self, **kwargs):
-        """
-        
-        --------------------------------------------------------------
-        attributes = ['start_date', 'end_date', 'duration', 'deadline', 'label', 'id', 'dependant']
-        """
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-        self.parent = []
-        self.child = []
-        if hasattr(self, 'dependant'):
-            self.set_dependant()
-
-        self.__check_duration_info__()
-
-    def __check_duration_info__(self):
-        c = 0
-        for k in TIME_ATTRIBUTES:
-            if hasattr(self, k):
-                c+=1
-        if c > 1:
-            super(Duration, self).__init__()
-            self.comp_missing()
-
-    def set_dependant(self):
-        if isinstance(self.dependant, str):
-            if isinstance(self.dependant, str):
-                self.dependant = self.dependant.split(',')
-            for d in self.dependant:
-                self.setparent(d)
-        else:
-            self.parent = None
-        
-    def after(self, other, offset=0):
-        """Changes the start and end date of the input activity to make it before this"""
-        date_delta = other.end_date - self.start_date
-        date_delta = date_delta + timedelta(offset)
-        return self.move(date_delta)
-        
-    def before(self, other, offset=0):
-        """Changes the start and end date of the input activity to make it after this"""
-        date_delta = other.start_date - self.end_date
-        date_delta = date_delta + timedelta(offset)
-        return self.move(date_delta)
-
-    def parallel(self, other, offset=0):
-        """Changes the start and end date of the input activity to make it at the same time as this.
-        You can also give and offset, assuming positive is later, negative is earlier"""
-        date_delta = other.start_date - self.start_date
-        date_delta = date_delta + timedelta(offset)
-        return self.move(date_delta)
-
-    def isbefore(self, other):
-        """Assumes you want to check this activity is finished before some other or some date"""
-        return self.__le__(other)
-
-    def isafter(self, other):
-        """Assumes you want to check this activity starts after some other or some date"""
-        return self.__ge__(other)
-
-    def isduring(self, other):
-        """Assumes you want to check any overlap"""
-        return self.__eq__(other)
-
-    def setparent(self, other):
-        self.parent.append(other)
-
-    def setchild(self, other):
-        self.child.append(other)
-
-    def satisfied_deadline(self):
-        if hasattr(self, 'deadline'):
-            if self.end_date < self.deadline:
-                return True
-            else:
-                return False
-        else:
-            return False
-
-
-
-def return_new(S, E, D):
+def return_new(S,E,D):
     return Activity(start_date=S, end_date=E, duration=D)
-
-
-if __name__ == '__main__':
-
-    A0 = Activity(start_date = date.today(), duration = timedelta(10))
-    A1 = A0
-    A1 = A1.move(30)
     
-    A0.start_date
-    A1.start_date
 
-    A0 = A0.before(A1)
-    A1.isbefore(A0)
-    A1.isafter(A0)
-    A2 = A0.move(-3)
-    A0.isduring(A2)
-    A1.isduring(A0)
-    A2.isduring(A0)
+if __name__=='__main__':
 
-    A0.start_date
-    A1.end_date
+    A0 = Duration(start_date=date.today(), end_date=date.today()+timedelta(10))
+    A0.duration
+    A1 = A0 /10
+    A1.duration
+
