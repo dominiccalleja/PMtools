@@ -1,7 +1,5 @@
 # Activity class 
-
-from datetime import date, timedelta
-import numpy as np 
+from methods import * 
 
 ACTIVITY_ATTRIBUTES = ['number', 'label', 'description',
                        'prerequisites', 'dependants', 'child', 'parent']
@@ -184,6 +182,11 @@ class Duration:
         else:
             return False, None
 
+    def __repr__(self):
+        resp = 50*'=' +"\n Temporal Properties: \n {}".format(''.join(['\t {} = {}\n'.format(i, getattr(self, i)) for i in props(self)])) + 50*'='
+        return resp
+
+
 
 class Activity(Duration):
 
@@ -267,11 +270,14 @@ class Activity(Duration):
         else:
             return False
 
+    def __repr__(self):
+        resp = 50*'=' + "\n Activity Properties: \n {}".format(''.join(
+            ['\t {} = {}\n'.format(i, getattr(self, i)) for i in props(self)])) + 50*'='
+        return resp
 
 
 def return_new(S, E, D):
     return Activity(start_date=S, end_date=E, duration=D)
-
 
 if __name__ == '__main__':
 
